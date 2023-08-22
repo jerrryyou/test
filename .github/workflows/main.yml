@@ -19,22 +19,20 @@ jobs:
         with:
           script: |
             const approver = "mejerrytech"; // Replace with the GitHub username of the QA approver
-            const pull_number = context.payload.pull_request.number;
+            const commit_sha = context.sha;
             
             const request = {
               event: 'APPROVE',
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: pull_number,
-              reviewers: [approver],
+              commit_id: commit_sha,
             };
             
-            const response = await github.pulls.createReview(request);
+            const response = await github.repos.createCommitComment(request);
             console.log(response);
           
-          
       - name: Deploy if Approved
-        if: steps.request_qa_review.outputs.response.data.state == 'approved'
+        if: steps.request_qa_review.outputs.response.data.state == 'APPROVED'
         run: |
           # Implement the deployment here
           # This step will only run if the QA approver has approved the review
