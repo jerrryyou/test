@@ -31,6 +31,8 @@ jobs:
             
             const response = await github.pulls.createReview(request);
             console.log(response);
+        env:
+          CUSTOM_PAT: ${{ secrets.QA }}   # Use the correct secret name
           
       - name: Deploy if Approved
         if: steps.request_qa_review.outputs.response.data.state == 'APPROVED'
