@@ -1,4 +1,4 @@
-name: QA Approval Workflow
+name: QA and Merge to Production
 
 on:
   pull_request:
@@ -7,37 +7,40 @@ on:
       - synchronize
 
 jobs:
-  qa_approval:
+  qa_and_merge:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
-      - name: List changed files
-        id: list_files
-        run: echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})"
-        
-      - name: Request QA Review
-        id: request_qa_review
+
+      - name: Run QA Tests
+        run: |
+          # Replace this with your actual QA testing commands
+          echo "Running QA tests..."
+          # If tests fail, exit with a non-zero code
+          # exit 1
+
+      - name: Request QA Approval
+        id: request_qa_approval
         uses: actions/github-script@v4
         with:
           script: |
-            const files = "${{ steps.list_files.outputs.files }}".split('\n');
-            const reviewers = ["baljeetio", "baljeetio"]; // Add your QA reviewers' usernames here
-            
-            const request = {
-              reviewers: reviewers,
-              title: 'QA Review Request',
-              body: `Please review the changes in the following files:\n\n${files.join('\n')}`,
-            };
-            
-            const response = await github.pulls.createReviewRequest(request);
+            const qaApprover = "baljeetio"; // Replace with actual QA approver's username
+            const prNumber = context.issue.number;
+
+            const response = await octokit.pulls.createReviewRequest({
+              ...context.repo,
+              pull_number: prNumber,
+              reviewers: [qaApprover]
+            });
             console.log(response);
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Merge to Production
-        if: steps.request_qa_review.outputs.response
+        if: steps.request_qa_approval.outputs.response
         run: |
-          # Implement the merge to production here
-          # This step will only run if the QA review request was successful
+          git checkout production
+          git merge staging --no-ff --no-edit
+          # Push changes to production
+          git push origin production
