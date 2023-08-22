@@ -1,0 +1,35 @@
+name: Merge Staging to Production with QA Approval
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  qa_approval:
+    name: QA Approval
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Request QA Approval
+        run: echo "QA Approval is needed" # You can customize this step to notify your QA team
+
+  merge_to_production:
+    name: Merge Staging to Production
+    runs-on: ubuntu-latest
+    needs: qa_approval
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Merge staging into production
+        run: |
+          git branch -r
+          git fetch origin
+          git branch -a
+          git checkout origin/staging
+          git merge origin/staging
