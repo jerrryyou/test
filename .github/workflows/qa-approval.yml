@@ -1,4 +1,3 @@
-yaml
 name: QA Approval Workflow
 
 on:
