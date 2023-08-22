@@ -18,7 +18,7 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const approver = "baljeetio"; // Replace with the GitHub username of the QA approver
+            const approver = "mejerrytech"; // Replace with the GitHub username of the QA approver
             const pull_number = context.payload.pull_request.number;
             
             const request = {
@@ -31,7 +31,7 @@ jobs:
             
             const response = await github.pulls.createReview(request);
             console.log(response);
-          token: ${{ secrets.QA }}
+          
           
       - name: Deploy if Approved
         if: steps.request_qa_review.outputs.response.data.state == 'approved'
