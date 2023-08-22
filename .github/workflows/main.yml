@@ -38,3 +38,4 @@ jobs:
         run: |
           # Implement the deployment here
           # This step will only run if the QA approver has approved the review
+          ls -la
