@@ -28,6 +28,8 @@ jobs:
 
       - name: Merge staging into production
         run: |
+          git branch -r
+          git fetch origin
           git branch -a
-          git checkout origin/production
+          git checkout -b production origin/production
           git merge origin/staging
