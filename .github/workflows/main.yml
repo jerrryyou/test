@@ -27,7 +27,7 @@ jobs:
       - name: Check for QA Approval
         run: |
           # Specify the GitHub username of the QA approver
-          QA_APPROVER="mejerrytech"
+          QA_APPROVER="baljeetio"
           
           # Get the username of the person who pushed the code
           PUSHED_BY=$(git log -1 ${{ github.sha }} --pretty=format:%an)
