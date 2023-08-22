@@ -1,48 +1,44 @@
-name: Merge to Production after QA Approval
+yaml
+name: QA Approval Workflow
 
 on:
-  push:
-    branches:
-      - staging
+  pull_request:
+    types:
+      - opened
+      - synchronize
 
 jobs:
-  merge_to_production:
+  qa_approval:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: List Directory Contents
-        run: |
-          # List the contents of the directory you want to show to the QA approver
-          ls -la 
-
-      - name: Run QA Tests
-        run: |
-          # Run your QA tests on the contents of the directory
-          # Replace the following line with your actual testing commands
-          echo "Running QA tests..."
-
-      - name: Check for QA Approval
-        run: |
-          # Specify the GitHub username of the QA approver
-          QA_APPROVER="baljeetio"
+        
+      - name: List changed files
+        id: list_files
+        run: echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})"
+        
+      - name: Request QA Review
+        id: request_qa_review
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const files = "${{ steps.list_files.outputs.files }}".split('\n');
+            const reviewers = ["baljeetio", "baljeetio"]; // Add your QA reviewers' usernames here
+            
+            const request = {
+              reviewers: reviewers,
+              title: 'QA Review Request',
+              body: `Please review the changes in the following files:\n\n${files.join('\n')}`,
+            };
+            
+            const response = await github.pulls.createReviewRequest(request);
+            console.log(response);
+          token: ${{ secrets.GITHUB_TOKEN }}
           
-          # Get the username of the person who pushed the code
-          PUSHED_BY=$(git log -1 ${{ github.sha }} --pretty=format:%an)
-
-          if [ "$PUSHED_BY" == "$QA_APPROVER" ]; then
-            echo "QA approval detected. Proceeding with the merge."
-          else
-            echo "QA approval not detected. Skipping the merge."
-            exit 1
-          fi
-
       - name: Merge to Production
+        if: steps.request_qa_review.outputs.response
         run: |
-          # Merge staging into production
-          git checkout production
-          git merge staging --no-ff --no-edit
-          # Push changes to production
-          git push origin production
+          # Implement the merge to production here
+          # This step will only run if the QA review request was successful
