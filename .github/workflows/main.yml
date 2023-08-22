@@ -25,10 +25,11 @@ jobs:
               event: 'APPROVE',
               owner: context.repo.owner,
               repo: context.repo.repo,
-              commit_id: commit_sha,
+              pull_number: ${{ github.event.pull_request.number }},
+              reviewers: [approver],
             };
             
-            const response = await github.repos.createCommitComment(request);
+            const response = await github.pulls.createReview(request);
             console.log(response);
           
       - name: Deploy if Approved
