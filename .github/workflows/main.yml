@@ -27,15 +27,15 @@ jobs:
         with:
           script: |
             const qaApprover = "baljeetio"; // Replace with actual QA approver's username
-            const prNumber = context.issue.number;
+            const prNumber = context.payload.pull_request.number;
 
-            const response = await octokit.pulls.createReviewRequest({
+            const response = await github.pulls.createReviewRequest({
               ...context.repo,
               pull_number: prNumber,
               reviewers: [qaApprover]
             });
             console.log(response);
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Merge to Production
         if: steps.request_qa_approval.outputs.response
