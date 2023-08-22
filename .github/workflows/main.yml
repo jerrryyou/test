@@ -1,35 +1,40 @@
-name: Merge Staging to Production with QA Approval
+name: QA Approval and Deployment
 
 on:
   push:
     branches:
-      - staging
+      - main
 
 jobs:
   qa_approval:
-    name: QA Approval
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Request QA Approval
-        run: echo "QA Approval is needed" # You can customize this step to notify your QA team
-
-  merge_to_production:
-    name: Merge Staging to Production
-    runs-on: ubuntu-latest
-    needs: qa_approval
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Merge staging into production
+        
+      - name: Request QA Review
+        id: request_qa_review
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const approver = "baljeetio"; // Replace with the GitHub username of the QA approver
+            const pull_number = context.payload.pull_request.number;
+            
+            const request = {
+              event: 'APPROVE',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pull_number,
+              reviewers: [approver],
+            };
+            
+            const response = await github.pulls.createReview(request);
+            console.log(response);
+          token: ${{ secrets.QA }}
+          
+      - name: Deploy if Approved
+        if: steps.request_qa_review.outputs.response.data.state == 'approved'
         run: |
-          git branch -r
-          git fetch origin
-          git branch -a
-          git checkout origin/staging
-          git merge origin/staging
+          # Implement the deployment here
+          # This step will only run if the QA approver has approved the review
