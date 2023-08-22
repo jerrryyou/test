@@ -19,13 +19,13 @@ jobs:
         with:
           script: |
             const approver = "mejerrytech"; // Replace with the GitHub username of the QA approver
-            const pull_number = context.payload.pull_request.number;
+            const commit_sha = context.sha;
             
             const request = {
               event: 'APPROVE',
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: pull_number,
+              pull_number: ${{ github.event.pull_request.number }},
               reviewers: [approver],
             };
             
