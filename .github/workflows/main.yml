@@ -3,7 +3,7 @@ name: QA Approval and Deployment
 on:
   push:
     branches:
-      - main
+      - production
 
 jobs:
   qa_approval:
