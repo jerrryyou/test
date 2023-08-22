@@ -32,7 +32,7 @@ jobs:
             const response = await github.pulls.createReview(request);
             console.log(response);
         env:
-          GITHUB_TOKEN: ${{ secrets.QA }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_REPO_SECRET }}
           
       - name: Deploy if Approved
         if: steps.request_qa_review.outputs.response.data.state == 'APPROVED'
