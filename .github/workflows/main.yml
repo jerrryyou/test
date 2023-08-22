@@ -1,47 +1,32 @@
-name: QA and Merge to Production
+name: Merge Staging to Production with QA Approval
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
+    branches:
+      - staging
 
 jobs:
-  qa_and_merge:
+  qa_approval:
+    name: QA Approval
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Run QA Tests
-        run: |
-          # Replace this with your actual QA testing commands
-          echo "Running QA tests..."
-          # If tests fail, exit with a non-zero code
-          # exit 1
-
       - name: Request QA Approval
-        id: request_qa_approval
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const qaApprover = "baljeetio"; // Replace with actual QA approver's username
-            const prNumber = context.payload.pull_request.number;
+        run: echo "QA Approval is needed" # You can customize this step to notify your QA team
 
-            const response = await github.pulls.createReview({
-              ...context.repo,
-              pull_number: prNumber,
-              reviewers: [qaApprover],
-              event: "REQUEST_REVIEW"
-            });
-            console.log(response);
-          github-token: ${{ secrets.QA }}
+  merge_to_production:
+    name: Merge Staging to Production
+    runs-on: ubuntu-latest
+    needs: qa_approval
 
-      - name: Merge to Production
-        if: steps.request_qa_approval.outputs.response
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Merge staging into production
         run: |
           git checkout production
-          git merge staging --no-ff --no-edit
-          # Push changes to production
-          git push origin production
+          git merge staging
