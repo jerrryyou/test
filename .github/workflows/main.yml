@@ -26,13 +26,14 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const qaApprover = "baljeetio"; // Replace with actual QA approver's username
+            const qaApprover = "qa-approver-username"; // Replace with actual QA approver's username
             const prNumber = context.payload.pull_request.number;
 
-            const response = await github.pulls.createReviewRequest({
+            const response = await github.pulls.createReview({
               ...context.repo,
               pull_number: prNumber,
-              reviewers: [qaApprover]
+              reviewers: [qaApprover],
+              event: "REQUEST_REVIEW"
             });
             console.log(response);
           github-token: ${{ secrets.GITHUB_TOKEN }}
