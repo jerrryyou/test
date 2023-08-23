@@ -15,7 +15,7 @@ jobs:
         
       - name: Request QA Review
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_REPO_SECRET }}
+          name: Production
         id: request_qa_review
         uses: actions/github-script@v4
         with:
