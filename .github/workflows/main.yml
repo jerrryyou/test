@@ -4,39 +4,21 @@ on:
   push:
     branches:
       - production
-
+            
 jobs:
-  qa_approval:
+  Build:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Request QA Review
-        env:
-          name: Production
-        id: request_qa_review
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const approver = "mejerrytech"; // Replace with the GitHub username of the QA approver
-            const commit_sha = context.sha;
-            
-            const request = {
-              event: 'APPROVE',
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: ${{ github.event.pull_request.number }},
-              reviewers: [approver],
-            };
-            
-            const response = await github.pulls.createReview(request);
-            console.log(response);
-          
-      - name: Deploy if Approved
-        if: steps.request_qa_review.outputs.response.data.state == 'APPROVED'
-        run: |
-          # Implement the deployment here
-          # This step will only run if the QA approver has approved the review
-          ls -la
+      - uses: actions/checkout@v2
+
+      - name: Compile
+        run: echo Hello, world!
+
+  DeployProd:
+    name: Deploy to Production 
+    runs-on: ubuntu-latest
+    environment: 
+      name: Production
+    steps:
+      - name: Deploy
+        run: echo I am deploying!         
